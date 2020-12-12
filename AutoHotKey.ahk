@@ -49,6 +49,19 @@ F4::
 		}
 	}
 	return
+
+^Media_Play_Pause::
+	PATH = C:\Users\jesse\AppData\Roaming\Spotify\Spotify.exe
+	SHORTCUT = Apps\shortcuts\Spotify.lnk
+	run %SHORTCUT%
+	While(not WinExist("ahk_exe " PATH)){
+		sleep 10
+	}
+	volume_set(spotify_volume, "Volume\spotify_") ;;set init
+	Send {Media_Play_Pause}
+	Sleep, 100
+	WinClose, ahk_exe %PATH%
+	return
 	
 #`:: ; [Win]+[`]
     WinGet, window, ID, A
