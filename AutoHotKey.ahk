@@ -33,7 +33,8 @@ F4::
 		While(not WinExist("ahk_exe " PATH)){
 			sleep 10
 		}
-
+		volume_set(spotify_volume, "Volume\spotify_") ;;set init
+		
 /*
 	Do something here?
 */
