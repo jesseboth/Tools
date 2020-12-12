@@ -6,9 +6,10 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 Menu,Tray,Icon,icons\Icon.ico
 
-global spotify_volume := 50, spotify_mute := 1, chrome_volume := 50, chrome_mute := 1
-volume_set(spotify_volume, "Volume\spotify_") ;;set init
-volume_set(chrome_volume, "Volume\chrome_")
+global spotify_volume := .5, spotify_mute := 1, chrome_volume := .5, chrome_mute := 1, master_volume := .3
+volume_set(spotify_volume, "spotify.exe") ;;set init
+volume_set(chrome_volume, "chrome.exe")
+master_volume(master_volume)
 
 ;;for making shortcuts for programming
 Coding(){
@@ -195,29 +196,17 @@ arrow keys--------------------------------------------------
 
 ;spotify_spotify_volume-------------------------------------------------------------------------------
 spotify_up(){
-	if(spotify_volume < 10){
-		spotify_volume += 5
-		volume_set(spotify_volume, "Volume\spotify_")
-	}
-	else{
-		if(spotify_volume < 100){
-			spotify_volume += 10
-			volume_set(spotify_volume, "Volume\spotify_")
-		}
+	if(spotify_volume < 1){
+		spotify_volume += .05
+		volume_set(spotify_volume, "spotify.exe")
 	}
 }
 
 
 spotify_down(){
-	if(spotify_volume > 0 && spotify_volume <= 10){
-		spotify_volume -= 5
-		volume_set(spotify_volume, "Volume\spotify_")
-	}
-	else{
-		if(spotify_volume > 0){
-			spotify_volume -= 10
-			volume_set(spotify_volume, "Volume\spotify_")
-		}
+	if((spotify_volume > 0)){
+		spotify_volume -= .05
+		volume_set(spotify_volume, "spotify.exe")
 	}
 }
 
@@ -230,25 +219,25 @@ spotify_down(){
 ^Volume_Mute::
 	if(spotify_mute == 1){
 		spotify_mute = 0
-		volume_set(0, "Volume\spotify_")
+		volume_set(0, "spotify.exe")
 	}
 	else{
 		spotify_mute = 1
-		volume_set(spotify_volume, "Volume\spotify_")
+		volume_set(spotify_volume, "spotify.exe")
 	}
 	Return
 ;chrome_volume ---------------------------------------------------------------------
 chrome_up(){
-	if(chrome_volume < 100){
-		chrome_volume += 10
-		volume_set(chrome_volume, "Volume\chrome_")
+	if(chrome_volume < 1){
+		chrome_volume += .05
+		volume_set(chrome_volume, "chrome.exe")
 	}
 }
 
 chrome_down(){
 	if(chrome_volume > 0){
-		chrome_volume -= 10
-		volume_set(chrome_volume, "Volume\chrome_")
+		chrome_volume -= .05
+		volume_set(chrome_volume, "chrome.exe")
 	}
 }
 
@@ -261,15 +250,24 @@ chrome_down(){
 !Volume_Mute::
 	if(chrome_mute == 1){
 		chrome_mute = 0
-		volume_set(0, "Volume\chrome_")
+		volume_set(0, "chrome.exe")
 	}
 	else{
 		chrome_mute = 1
-		volume_set(chrome_volume, "Volume\chrome_")
+		volume_set(chrome_volume, "chrome.exe")
 	}
 	Return
 
-volume_set(vol, PATH){
-	set := PATH vol
+volume_set(vol, app){
+	value := Round(vol, 2)
+	set := "nircmd.exe setappvolume " app " " value
+	run %set%
+}
+
+master_volume(vol){
+	max = 65535
+	value := (vol * max)
+	value := Round(value, 0)
+	set := "nircmd.exe setvolume 0 " value " " value
 	run %set%
 }
