@@ -1,0 +1,8 @@
+<Application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<VisualElements
+				BackgroundColor="#404040"
+				ShowNameOnSquare150x150Logo="off"
+				Square150x150Logo="icons\calc_icon.png"
+				Square70x70Logo="icons\calc_icon.png"
+				ForegroundText="light" />
+</Application>
