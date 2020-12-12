@@ -195,17 +195,29 @@ arrow keys--------------------------------------------------
 
 ;spotify_spotify_volume-------------------------------------------------------------------------------
 spotify_up(){
-	if(spotify_volume < 100){
-		spotify_volume += 10
+	if(spotify_volume < 10){
+		spotify_volume += 5
 		volume_set(spotify_volume, "Volume\spotify_")
+	}
+	else{
+		if(spotify_volume < 100){
+			spotify_volume += 10
+			volume_set(spotify_volume, "Volume\spotify_")
+		}
 	}
 }
 
 
 spotify_down(){
-	if(spotify_volume > 0){
-		spotify_volume -= 10
+	if(spotify_volume > 0 && spotify_volume <= 10){
+		spotify_volume -= 5
 		volume_set(spotify_volume, "Volume\spotify_")
+	}
+	else{
+		if(spotify_volume > 0){
+			spotify_volume -= 10
+			volume_set(spotify_volume, "Volume\spotify_")
+		}
 	}
 }
 
