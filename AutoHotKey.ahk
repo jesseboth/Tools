@@ -6,7 +6,9 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 Menu,Tray,Icon,icons\Icon.ico
 
-global spotify_volume := .5, spotify_mute := 1, chrome_volume := .5, chrome_mute := 1, master_volume := .3
+global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954"
+global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X79 Y204 W35 H20", white_block :="ffffff"
+
 volume_set(spotify_volume, "spotify.exe") ;;set init
 volume_set(chrome_volume, "chrome.exe")
 master_volume(master_volume)
@@ -213,6 +215,7 @@ spotify_up(){
 		spotify_volume += .05
 		volume_set(spotify_volume, "spotify.exe")
 	}
+	createGui(spotify_volume*100, spotify_green)
 }
 
 
@@ -221,6 +224,7 @@ spotify_down(){
 		spotify_volume -= .05
 		volume_set(spotify_volume, "spotify.exe")
 	}
+	createGui(spotify_volume*100, spotify_green)
 }
 
 ^Volume_Up::
@@ -283,4 +287,121 @@ master_volume(vol){
 	value := Round(value, 0)
 	set := "nircmd.exe setvolume 0 " value " " value
 	run %set%
+}
+
+select_audio_out(){
+	if(audio_out == 0){
+		set := "nircmd setdefaultsounddevice Headphones"
+		audio_out +=1
+	}
+	else{
+		if(audio_out = 1){
+			set := "nircmd setdefaultsounddevice Headset"
+			audio_out +=1
+		}
+		else{
+
+			audio_out = 0
+		}
+	}
+
+	run %set%
+	return
+}
+
+#h::
+	select_audio_out()
+	return
+
+#t::
+	createGui(spotify_volume*100, green)
+	return
+; Removes the Border and Task bar icon
+
+
+/*
+Show
+*/
+global hGuiBack := 0, hGuiBarBack := 0, hGuitext:= 0, hGuibox := 0,  hGuiacc := 0
+createGui(num, color){
+	vSpotVol = ""
+		; Removes the Border and Task bar icon
+	Gui back:+ToolWindow +LastFound -Caption 
+	Gui back:Color, %base_color%, volume_back
+	hGuiBack := WinExist()
+
+
+	Gui bar_back: +ToolWindow +LastFound -Caption
+	Gui bar_back:Color,  %bar_background%, volume_bar
+	hGuiBarBack := WinExist()
+
+	Gui, +ToolWindow +LastFound -Caption
+	Gui, Color, %base_color%,volume_num
+	; hGuitext := WinExist()
+	; Value := Floor(num)
+	; place = %Value%
+	; Gui, Add, Text,cWhite, %place%
+	; Gui, Font, s10 cWhite, Marlet
+
+
+	Gui white_block: +ToolWindow +LastFound -Caption
+	Gui white_block:Color,  %color%, volume_block
+	hGuibox := WinExist()
+
+	Gui accent_bar: +ToolWindow +LastFound -Caption
+	Gui accent_bar: Color, %accent_color%, volume_accent
+	hGuiacc := WinExist()
+
+
+	/*
+	Show
+	*/
+	Gui back: Show, %pos%, volume_back
+	WinSet, Transcolor, 0e0e0e 240, volume_back
+	WinSet, AlwaysOnTop,, volume_back
+	Gui,  Show, %num_pos%, volume_num
+	WinSet, AlwaysOnTop,, volume_num
+	Gui bar_back:Show, %bar_pos%, volume_bar
+	WinSet, AlwaysOnTop,, volume_bar
+	GuiControl, Font, SpotVol
+
+	max_block:=100
+	min_block:=185
+	dif_block:=85
+	block_place:=min_block-num/100*dif_block
+
+	max_bar := 80
+	max_bot := 110
+
+	bar_height := num/100*max_bar
+	bar_y := 200-num
+	;;max 100
+	;;min 185
+	Gui accent_bar: Show, X96 y%bar_y% W11 h%bar_height%, volume_accent
+	WinSet, AlwaysOnTop,, volume_accent
+
+	Gui white_block:  Show, w11 h11 X96 y%block_place%, volume_block
+	WinSet, AlwaysOnTop,, volume_block
+	
+	Return
+}
+
+
+~LButton::
+    MouseGetPos,,, hWinUM
+    if (hWinUM == hGuiBack or hWinUM == hGuiBarBack or hWinUM == hGuitext or hWinUM == hGuibox or hWinUM == hGuiacc){
+        hide(false)
+    }
+    return
+
+
+hide(check){
+	if(check){
+		sleep (15*1000)
+	}
+    Gui back:Hide
+    Gui, Hide
+    Gui bar_back: Hide
+    Gui accent_bar: Hide
+    Gui white_block: Hide
 }
