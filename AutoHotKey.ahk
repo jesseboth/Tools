@@ -6,9 +6,9 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 Menu,Tray,Icon,icons\Icon.ico
 
-global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954"
-global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X79 Y204 W35 H20", white_block :="ffffff"
-
+global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954", check:=0
+global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X77 Y204 W35 H20", white_block :="ffffff"
+Gui, Add, Text,cWhite w20 h20 Center vSpotVol, 
 volume_set(spotify_volume, "spotify.exe") ;;set init
 volume_set(chrome_volume, "chrome.exe")
 master_volume(master_volume)
@@ -220,7 +220,7 @@ spotify_up(){
 
 
 spotify_down(){
-	if((spotify_volume > 0)){
+	if((spotify_volume > .04)){
 		spotify_volume -= .05
 		volume_set(spotify_volume, "spotify.exe")
 	}
@@ -237,10 +237,14 @@ spotify_down(){
 	if(spotify_mute == 1){
 		spotify_mute = 0
 		volume_set(0, "spotify.exe")
+		createGui(0, spotify_green)
+
 	}
 	else{
 		spotify_mute = 1
 		volume_set(spotify_volume, "spotify.exe")
+		createGui(spotify_volume*100, spotify_green)
+
 	}
 	Return
 ;chrome_volume ---------------------------------------------------------------------
@@ -249,13 +253,16 @@ chrome_up(){
 		chrome_volume += .05
 		volume_set(chrome_volume, "chrome.exe")
 	}
+	createGui(chrome_volume*100, "FF0000")
 }
 
 chrome_down(){
-	if(chrome_volume > 0){
+	if(chrome_volume > .04){
 		chrome_volume -= .05
 		volume_set(chrome_volume, "chrome.exe")
 	}
+	createGui(chrome_volume*100, "FF0000")
+
 }
 
 !Volume_Up::
@@ -268,10 +275,13 @@ chrome_down(){
 	if(chrome_mute == 1){
 		chrome_mute = 0
 		volume_set(0, "chrome.exe")
+		createGui(0, "FF0000")
+
 	}
 	else{
 		chrome_mute = 1
 		volume_set(chrome_volume, "chrome.exe")
+		createGui(chrome_volume*100, "FF0000")
 	}
 	Return
 
@@ -318,13 +328,14 @@ select_audio_out(){
 	return
 ; Removes the Border and Task bar icon
 
-
 /*
 Show
 */
 global hGuiBack := 0, hGuiBarBack := 0, hGuitext:= 0, hGuibox := 0,  hGuiacc := 0
+
+	
 createGui(num, color){
-	vSpotVol = ""
+
 		; Removes the Border and Task bar icon
 	Gui back:+ToolWindow +LastFound -Caption 
 	Gui back:Color, %base_color%, volume_back
@@ -337,11 +348,10 @@ createGui(num, color){
 
 	Gui, +ToolWindow +LastFound -Caption
 	Gui, Color, %base_color%,volume_num
-	; hGuitext := WinExist()
-	; Value := Floor(num)
-	; place = %Value%
-	; Gui, Add, Text,cWhite, %place%
-	; Gui, Font, s10 cWhite, Marlet
+	hGuitext := WinExist()
+	; Gui, Add, Text,cWhite w16 h16 Center vSpotVol, %place%
+	; Gui, Color, blue
+	Gui, Font, s10 cWhite, Marlet
 
 
 	Gui white_block: +ToolWindow +LastFound -Caption
@@ -356,6 +366,8 @@ createGui(num, color){
 	/*
 	Show
 	*/
+	Value := Round(num)
+	place = %Value%
 	Gui back: Show, %pos%, volume_back
 	WinSet, Transcolor, 0e0e0e 240, volume_back
 	WinSet, AlwaysOnTop,, volume_back
@@ -364,6 +376,19 @@ createGui(num, color){
 	Gui bar_back:Show, %bar_pos%, volume_bar
 	WinSet, AlwaysOnTop,, volume_bar
 	GuiControl, Font, SpotVol
+	if(num == 0){
+		Gui, Font, s10 cWhite Bold, Marlet
+		GuiControl,,SpotVol,X
+		GuiControl, Font, SpotVol
+
+
+	}
+	else{
+		Gui, Font, s10 cWhite Normal, Marlet
+		GuiControl,,SpotVol,%place%
+		GuiControl, Font, SpotVol
+		
+	}
 
 	max_block:=100
 	min_block:=185
@@ -382,7 +407,36 @@ createGui(num, color){
 
 	Gui white_block:  Show, w11 h11 X96 y%block_place%, volume_block
 	WinSet, AlwaysOnTop,, volume_block
-	
+
+    Loop, 3000{
+      if ((IsKeyPressed("Ctrl") and IsKeyPressed("Volume_Up")) or (IsKeyPressed("Ctrl") and IsKeyPressed("Volume_Down")) or (IsKeyPressed("Alt") and IsKeyPressed("Volume_Up")) or (IsKeyPressed("Alt") and IsKeyPressed("Volume_Down"))){
+		check = 0
+		if(IsKeyPressed("Ctrl")){
+			if(IsKeyPressed("Volume_Up")){
+				spotify_up()
+			}
+			else{
+				spotify_down()
+			}
+		}
+		else{
+			if(IsKeyPressed("Volume_Up")){
+
+				chrome_up()
+			}
+			else{
+				chrome_down()
+			}
+		}
+	  }
+      Sleep 1
+	  check+=1
+	if(check == 22s0){
+		hide()
+		break
+	}
+    }
+
 	Return
 }
 
@@ -390,18 +444,28 @@ createGui(num, color){
 ~LButton::
     MouseGetPos,,, hWinUM
     if (hWinUM == hGuiBack or hWinUM == hGuiBarBack or hWinUM == hGuitext or hWinUM == hGuibox or hWinUM == hGuiacc){
-        hide(false)
+        hide()
     }
     return
 
 
-hide(check){
-	if(check){
-		sleep (15*1000)
-	}
-    Gui back:Hide
-    Gui, Hide
-    Gui bar_back: Hide
-    Gui accent_bar: Hide
-    Gui white_block: Hide
+hide(){
+	check = 0
+	Gui back:Hide
+	Gui, Hide
+	Gui bar_back: Hide
+	Gui accent_bar: Hide
+	Gui white_block: Hide
+	return
+}
+
+IsKeyPressed(v_KeyName)
+; Returns 1 if %v_KeyName% is currently being pressed, otherwise 0
+{
+GetKeyState, state, %v_KeyName%, P
+If state = D ; The key has been pressed
+{
+Return 1
+}
+Return 0
 }
