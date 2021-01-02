@@ -7,7 +7,7 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 Menu,Tray,Icon,icons\Icon.ico
 
 global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954", check:=0
-global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X77 Y204 W35 H20", white_block :="ffffff"
+global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X77 Y204 W35 H20", white_block :="ffffff", default_volume :=1, ahk_volume:=1
 Gui, Add, Text,cWhite w20 h20 Center vSpotVol, 
 volume_set(spotify_volume, "spotify.exe") ;;set init
 volume_set(chrome_volume, "chrome.exe")
@@ -336,52 +336,63 @@ global hGuiBack := 0, hGuiBarBack := 0, hGuitext:= 0, hGuibox := 0,  hGuiacc := 
 	
 createGui(num, color){
 
+	WinGet, winid ,, A ;;active window
+	hide_default()
+
 		; Removes the Border and Task bar icon
-	Gui back:+ToolWindow +LastFound -Caption 
+	Gui back:+ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui back:Color, %base_color%, volume_back
-	hGuiBack := WinExist()
+	if(ahk_volume){
+		hGuiBack := WinExist()
+	}
 
 
-	Gui bar_back: +ToolWindow +LastFound -Caption
+	Gui bar_back: +ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui bar_back:Color,  %bar_background%, volume_bar
 	hGuiBarBack := WinExist()
 
-	Gui, +ToolWindow +LastFound -Caption
+	Gui, +ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui, Color, %base_color%,volume_num
-	hGuitext := WinExist()
+	if(ahk_volume){
+		hGuitext := WinExist()
+	}
 	; Gui, Add, Text,cWhite w16 h16 Center vSpotVol, %place%
 	; Gui, Color, blue
 	Gui, Font, s10 cWhite, Marlet
 
-
-	Gui white_block: +ToolWindow +LastFound -Caption
-	Gui white_block:Color,  %color%, volume_block
-	hGuibox := WinExist()
-
-	Gui accent_bar: +ToolWindow +LastFound -Caption
+	Gui accent_bar: +ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui accent_bar: Color, %accent_color%, volume_accent
-	hGuiacc := WinExist()
+	if(ahk_volum){
+		hGuiacc := WinExist()
+	}
 
+	Gui white_block: +ToolWindow +LastFound +AlwaysOnTop -Caption
+	Gui white_block:Color,  %color%, volume_block
+	if(ahk_volume){
+		hGuibox := WinExist()
+		ahk_volume = 0
+	}
+
+	winactivate, ahk_id %winid% 
+	
 
 	/*
 	Show
 	*/
 	Value := Round(num)
 	place = %Value%
-	Gui back: Show, %pos%, volume_back
+	Gui back: Show, %pos% NoActivate, volume_back
 	WinSet, Transcolor, 0e0e0e 240, volume_back
-	WinSet, AlwaysOnTop,, volume_back
-	Gui,  Show, %num_pos%, volume_num
-	WinSet, AlwaysOnTop,, volume_num
-	Gui bar_back:Show, %bar_pos%, volume_bar
-	WinSet, AlwaysOnTop,, volume_bar
+	; WinSet, AlwaysOnTop,, volume_back
+	Gui,  Show, %num_pos% NoActivate, volume_num
+	; WinSet, AlwaysOnTop,, volume_num
+	Gui bar_back:Show, %bar_pos% NoActivate, volume_bar
+	; WinSet, AlwaysOnTop,, volume_bar
 	GuiControl, Font, SpotVol
 	if(num == 0){
 		Gui, Font, s10 cWhite Bold, Marlet
 		GuiControl,,SpotVol,X
 		GuiControl, Font, SpotVol
-
-
 	}
 	else{
 		Gui, Font, s10 cWhite Normal, Marlet
@@ -389,7 +400,6 @@ createGui(num, color){
 		GuiControl, Font, SpotVol
 		
 	}
-
 	max_block:=100
 	min_block:=185
 	dif_block:=85
@@ -402,13 +412,15 @@ createGui(num, color){
 	bar_y := 200-num
 	;;max 100
 	;;min 185
-	Gui accent_bar: Show, X96 y%bar_y% W11 h%bar_height%, volume_accent
-	WinSet, AlwaysOnTop,, volume_accent
+	Gui accent_bar: Show, X96 y%bar_y% W11 h%bar_height% NoActivate, volume_accent
+	; WinSet, AlwaysOnTop,, volume_accent
 
-	Gui white_block:  Show, w11 h11 X96 y%block_place%, volume_block
-	WinSet, AlwaysOnTop,, volume_block
+	Gui white_block:  Show, w11 h11 X96 y%block_place% NoActivate, volume_block
+	; WinSet, AlwaysOnTop,, volume_block
 
+	winactivate, ahk_id %winid% 
     Loop, 3000{
+      Sleep 55
       if ((IsKeyPressed("Ctrl") and IsKeyPressed("Volume_Up")) or (IsKeyPressed("Ctrl") and IsKeyPressed("Volume_Down")) or (IsKeyPressed("Alt") and IsKeyPressed("Volume_Up")) or (IsKeyPressed("Alt") and IsKeyPressed("Volume_Down"))){
 		check = 0
 		if(IsKeyPressed("Ctrl")){
@@ -429,9 +441,8 @@ createGui(num, color){
 			}
 		}
 	  }
-      Sleep 1
 	  check+=1
-	if(check == 22s0){
+	if(check == 70){
 		hide()
 		break
 	}
@@ -448,8 +459,30 @@ createGui(num, color){
     }
     return
 
+~Volume_Down::
+	show_default()
+	hide()
+	return
 
+~Volume_Up::
+	show_default()
+	hide()
+	return
+
+show_default(){
+	if(default_volume){
+		run "Apps\HideVolumeOSD (Show)"
+		default_volume = 0
+	}
+}
+hide_default(){
+	if(not default_volume){
+		run "Apps\HideVolumeOSD (Hide)"
+		default_volume = 1
+	}
+}
 hide(){
+	ahk_volume = 0
 	check = 0
 	Gui back:Hide
 	Gui, Hide
