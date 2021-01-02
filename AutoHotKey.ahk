@@ -7,7 +7,7 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 Menu,Tray,Icon,icons\Icon.ico
 
 global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954", check:=0
-global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X77 Y204 W35 H20", white_block :="ffffff", default_volume :=1, ahk_volume:=1
+global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X77 Y204 W35 H20", white_block :="ffffff", default_volume :=1, ahk_volume:=1, running:=1, stop:=0
 Gui, Add, Text,cWhite w20 h20 Center vSpotVol, 
 volume_set(spotify_volume, "spotify.exe") ;;set init
 volume_set(chrome_volume, "chrome.exe")
@@ -216,6 +216,7 @@ spotify_up(){
 		volume_set(spotify_volume, "spotify.exe")
 	}
 	createGui(spotify_volume*100, spotify_green)
+	return
 }
 
 
@@ -225,13 +226,18 @@ spotify_down(){
 		volume_set(spotify_volume, "spotify.exe")
 	}
 	createGui(spotify_volume*100, spotify_green)
+	return
 }
 
 ^Volume_Up::
-	spotify_up()
+	if(running){
+		spotify_up()
+	}
 	Return
 ^Volume_Down::
-	spotify_down()
+	if(running){
+		spotify_down()
+	}
 	return
 ^Volume_Mute::
 	if(spotify_mute == 1){
@@ -254,6 +260,7 @@ chrome_up(){
 		volume_set(chrome_volume, "chrome.exe")
 	}
 	createGui(chrome_volume*100, "FF0000")
+	return
 }
 
 chrome_down(){
@@ -262,7 +269,7 @@ chrome_down(){
 		volume_set(chrome_volume, "chrome.exe")
 	}
 	createGui(chrome_volume*100, "FF0000")
-
+	return
 }
 
 !Volume_Up::
@@ -289,6 +296,7 @@ volume_set(vol, app){
 	value := Round(vol, 2)
 	set := "nircmd.exe setappvolume " app " " value
 	run %set%
+	return
 }
 
 master_volume(vol){
@@ -297,6 +305,7 @@ master_volume(vol){
 	value := Round(value, 0)
 	set := "nircmd.exe setvolume 0 " value " " value
 	run %set%
+	return
 }
 
 select_audio_out(){
@@ -307,10 +316,6 @@ select_audio_out(){
 	else{
 		if(audio_out = 1){
 			set := "nircmd setdefaultsounddevice Headset"
-			audio_out +=1
-		}
-		else{
-
 			audio_out = 0
 		}
 	}
@@ -332,24 +337,38 @@ select_audio_out(){
 Show
 */
 global hGuiBack := 0, hGuiBarBack := 0, hGuitext:= 0, hGuibox := 0,  hGuiacc := 0
-
 	
 createGui(num, color){
 
-	WinGet, winid ,, A ;;active window
-	hide_default()
 
+	stop+=1
+	con := -1
+	al :=  -1
+	v_up := -1
+	v_down := -1
+
+	if(stop == 100){
+		sleep 5000
+		hide()
+		return
+	}
+	if(ahk_volume){
+		hide_default()
+	}
 		; Removes the Border and Task bar icon
 	Gui back:+ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui back:Color, %base_color%, volume_back
 	if(ahk_volume){
+		WinSet, Transcolor, 0e0e0e 240, volume_back
 		hGuiBack := WinExist()
 	}
 
 
 	Gui bar_back: +ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui bar_back:Color,  %bar_background%, volume_bar
-	hGuiBarBack := WinExist()
+	if(ahk_volume){
+		hGuiBarBack := WinExist()
+	}
 
 	Gui, +ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui, Color, %base_color%,volume_num
@@ -362,18 +381,18 @@ createGui(num, color){
 
 	Gui accent_bar: +ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui accent_bar: Color, %accent_color%, volume_accent
-	if(ahk_volum){
+	if(ahk_volume){
 		hGuiacc := WinExist()
 	}
 
 	Gui white_block: +ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui white_block:Color,  %color%, volume_block
+
 	if(ahk_volume){
+		WinSet, TransColor, %base_color%, volume_block
 		hGuibox := WinExist()
 		ahk_volume = 0
 	}
-
-	winactivate, ahk_id %winid% 
 	
 
 	/*
@@ -382,7 +401,6 @@ createGui(num, color){
 	Value := Round(num)
 	place = %Value%
 	Gui back: Show, %pos% NoActivate, volume_back
-	WinSet, Transcolor, 0e0e0e 240, volume_back
 	; WinSet, AlwaysOnTop,, volume_back
 	Gui,  Show, %num_pos% NoActivate, volume_num
 	; WinSet, AlwaysOnTop,, volume_num
@@ -398,7 +416,6 @@ createGui(num, color){
 		Gui, Font, s10 cWhite Normal, Marlet
 		GuiControl,,SpotVol,%place%
 		GuiControl, Font, SpotVol
-		
 	}
 	max_block:=100
 	min_block:=185
@@ -418,36 +435,42 @@ createGui(num, color){
 	Gui white_block:  Show, w11 h11 X96 y%block_place% NoActivate, volume_block
 	; WinSet, AlwaysOnTop,, volume_block
 
-	winactivate, ahk_id %winid% 
-    Loop, 3000{
-      Sleep 55
-      if ((IsKeyPressed("Ctrl") and IsKeyPressed("Volume_Up")) or (IsKeyPressed("Ctrl") and IsKeyPressed("Volume_Down")) or (IsKeyPressed("Alt") and IsKeyPressed("Volume_Up")) or (IsKeyPressed("Alt") and IsKeyPressed("Volume_Down"))){
-		check = 0
-		if(IsKeyPressed("Ctrl")){
-			if(IsKeyPressed("Volume_Up")){
-				spotify_up()
-			}
-			else{
-				spotify_down()
-			}
-		}
-		else{
-			if(IsKeyPressed("Volume_Up")){
+    Loop, 1000{
+      Sleep 60
 
-				chrome_up()
-			}
-			else{
-				chrome_down()
-			}
+		con := IsKeyPressed("Ctrl")
+		al :=  IsKeyPressed("Alt") 
+		v_up := IsKeyPressed("Volume_Up")
+		v_down := IsKeyPressed("Volume_Down")
+
+		if (( con and v_up) or (con and v_down) or (al and v_up) or (al and v_down)){
+			check = 0
+			running = 0
+			Break
 		}
-	  }
-	  check+=1
-	if(check == 70){
-		hide()
-		break
-	}
+		check+=1
+		if(check == 75){
+			hide()
+			return
+		}
     }
 
+	if(con){
+		if(v_up){
+			return spotify_up()
+		}
+		else if(v_down){
+			return spotify_down()
+		}
+	}
+	else if(al){
+		if(v_up){
+			return chrome_up()
+		}
+		else if(v_down){
+			return chrome_down()
+		}
+	}
 	Return
 }
 
@@ -474,16 +497,20 @@ show_default(){
 		run "Apps\HideVolumeOSD (Show)"
 		default_volume = 0
 	}
+	return
 }
 hide_default(){
 	if(not default_volume){
 		run "Apps\HideVolumeOSD (Hide)"
 		default_volume = 1
 	}
+	return
 }
 hide(){
-	ahk_volume = 0
-	check = 0
+	ahk_volume := 1
+	stop := 0
+	check := 0
+	running := 1
 	Gui back:Hide
 	Gui, Hide
 	Gui bar_back: Hide
