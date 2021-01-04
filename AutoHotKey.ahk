@@ -359,7 +359,6 @@ createGui(num, color){
 	Gui back:+ToolWindow +LastFound +AlwaysOnTop -Caption
 	Gui back:Color, %base_color%, volume_back
 	if(ahk_volume){
-		WinSet, Transcolor, 0e0e0e 240, volume_back
 		hGuiBack := WinExist()
 	}
 
@@ -375,8 +374,7 @@ createGui(num, color){
 	if(ahk_volume){
 		hGuitext := WinExist()
 	}
-	; Gui, Add, Text,cWhite w16 h16 Center vSpotVol, %place%
-	; Gui, Color, blue
+
 	Gui, Font, s10 cWhite, Marlet
 
 	Gui accent_bar: +ToolWindow +LastFound +AlwaysOnTop -Caption
@@ -389,7 +387,6 @@ createGui(num, color){
 	Gui white_block:Color,  %color%, volume_block
 
 	if(ahk_volume){
-		WinSet, TransColor, %base_color%, volume_block
 		hGuibox := WinExist()
 		ahk_volume = 0
 	}
@@ -401,12 +398,12 @@ createGui(num, color){
 	Value := Round(num)
 	place = %Value%
 	Gui back: Show, %pos% NoActivate, volume_back
-	; WinSet, AlwaysOnTop,, volume_back
 	Gui,  Show, %num_pos% NoActivate, volume_num
-	; WinSet, AlwaysOnTop,, volume_num
 	Gui bar_back:Show, %bar_pos% NoActivate, volume_bar
-	; WinSet, AlwaysOnTop,, volume_bar
 	GuiControl, Font, SpotVol
+	WinSet, Transparent, 240, volume_back
+	WinSet, TransColor, %base_color% 240, volume_num
+
 	if(num == 0){
 		Gui, Font, s10 cWhite Bold, Marlet
 		GuiControl,,SpotVol,X
@@ -421,19 +418,13 @@ createGui(num, color){
 	min_block:=185
 	dif_block:=85
 	block_place:=min_block-num/100*dif_block
-
 	max_bar := 80
 	max_bot := 110
-
 	bar_height := num/100*max_bar
 	bar_y := 200-num
-	;;max 100
-	;;min 185
-	Gui accent_bar: Show, X96 y%bar_y% W11 h%bar_height% NoActivate, volume_accent
-	; WinSet, AlwaysOnTop,, volume_accent
 
+	Gui accent_bar: Show, X96 y%bar_y% W11 h%bar_height% NoActivate, volume_accent
 	Gui white_block:  Show, w11 h11 X96 y%block_place% NoActivate, volume_block
-	; WinSet, AlwaysOnTop,, volume_block
 
     Loop, 1000{
       Sleep 60
