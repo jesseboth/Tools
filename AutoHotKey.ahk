@@ -128,7 +128,7 @@ PgDn::
 
 ^+t::
 	if(not Coding()){
-		run shell.ahk
+		run Apps\shell.ahk
 
 	}
 	return
@@ -175,13 +175,20 @@ for VS Code ----------------------------------------------
 arrow keys--------------------------------------------------
 */
 
-; ^!i::
+; ^i::
 ; 	Send {up}
 ; 	return
 
-; ^!j::
-; 	Send {Left}
-; Send {End}
+; ^j::
+; 	Send {left}
+; 	return
+
+; ^l::
+; 	Send {right}
+; 	return
+
+; ^k::
+; 	Send {down}
 ; 	return
 
 ; ^+i::
@@ -199,15 +206,6 @@ arrow keys--------------------------------------------------
 ; ^+l::
 ; 	Send +{Right}
 ; 	return
-
-; ^+u::
-; 	Send +{Home}
-; 	return
-
-; ^+o::
-; 	Send +{End}
-; 	return
-
 
 ;spotify_spotify_volume-------------------------------------------------------------------------------
 spotify_up(){
