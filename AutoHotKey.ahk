@@ -423,43 +423,9 @@ createGui(num, color){
 
 	Gui accent_bar: Show, X96 y%bar_y% W11 h%bar_height% NoActivate, volume_accent
 	Gui white_block:  Show, w11 h11 X96 y%block_place% NoActivate, volume_block
-
-    Loop, 1000{
-      Sleep 60
-
-		con := IsKeyPressed("Ctrl")
-		al :=  IsKeyPressed("Alt") 
-		v_up := IsKeyPressed("Volume_Up")
-		v_down := IsKeyPressed("Volume_Down")
-
-		if (( con and v_up) or (con and v_down) or (al and v_up) or (al and v_down)){
-			check = 0
-			running = 0
-			Break
-		}
-		check+=1
-		if(check == 75){
-			hide()
-			return
-		}
-    }
-
-	if(con){
-		if(v_up){
-			return spotify_up()
-		}
-		else if(v_down){
-			return spotify_down()
-		}
-	}
-	else if(al){
-		if(v_up){
-			return chrome_up()
-		}
-		else if(v_down){
-			return chrome_down()
-		}
-	}
+	
+	;hide after x seconds
+	SetTimer, hide, 2500
 	Return
 }
 
@@ -508,10 +474,16 @@ hide(){
 	return
 }
 
+hide:
+	hide()
+	return
+
+
 IsKeyPressed(v_KeyName)
 ; Returns 1 if %v_KeyName% is currently being pressed, otherwise 0
 {
-GetKeyState, state, %v_KeyName%, P
+GetKeyState, state, %v_KeyName%, 
+
 If state = D ; The key has been pressed
 {
 Return 1
