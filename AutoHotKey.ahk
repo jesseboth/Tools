@@ -6,8 +6,8 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 Menu,Tray,Icon,icons\Icon.ico
 
-global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954", check:=0
-global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X77 Y204 W35 H20", white_block :="ffffff", default_volume :=1, ahk_volume:=1, running:=1, stop:=0
+global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954"
+global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X77 Y204 W35 H20", white_block :="ffffff", default_volume :=1, ahk_volume:=1,
 Gui, Add, Text,cWhite w20 h20 Center vSpotVol, 
 volume_set(spotify_volume, "spotify.exe") ;;set init
 volume_set(chrome_volume, "chrome.exe")
@@ -228,14 +228,10 @@ spotify_down(){
 }
 
 ^Volume_Up::
-	if(running){
-		spotify_up()
-	}
+	spotify_up()
 	Return
 ^Volume_Down::
-	if(running){
-		spotify_down()
-	}
+	spotify_down()
 	return
 ^Volume_Mute::
 	if(spotify_mute == 1){
@@ -338,36 +334,24 @@ global hGuiBack := 0, hGuiBarBack := 0, hGuitext:= 0, hGuibox := 0,  hGuiacc := 
 	
 createGui(num, color){
 
-
-	stop+=1
-	con := -1
-	al :=  -1
-	v_up := -1
-	v_down := -1
-
-	if(stop == 100){
-		sleep 5000
-		hide()
-		return
-	}
 	if(ahk_volume){
 		hide_default()
 	}
 		; Removes the Border and Task bar icon
-	Gui back:+ToolWindow +LastFound +AlwaysOnTop -Caption
+	Gui back:+ToolWindow +LastFound +AlwaysOnTop -Caption +Disabled
 	Gui back:Color, %base_color%, volume_back
 	if(ahk_volume){
 		hGuiBack := WinExist()
 	}
 
 
-	Gui bar_back: +ToolWindow +LastFound +AlwaysOnTop -Caption
+	Gui bar_back: +ToolWindow +LastFound -Caption +Ownerback
 	Gui bar_back:Color,  %bar_background%, volume_bar
 	if(ahk_volume){
 		hGuiBarBack := WinExist()
 	}
 
-	Gui, +ToolWindow +LastFound +AlwaysOnTop -Caption
+	Gui, +ToolWindow +LastFound -Caption +Alwaysontop +Ownerback
 	Gui, Color, %base_color%,volume_num
 	if(ahk_volume){
 		hGuitext := WinExist()
@@ -375,13 +359,13 @@ createGui(num, color){
 
 	Gui, Font, s10 cWhite, Marlet
 
-	Gui accent_bar: +ToolWindow +LastFound +AlwaysOnTop -Caption
+	Gui accent_bar: +ToolWindow +LastFound -Caption +Ownerback
 	Gui accent_bar: Color, %accent_color%, volume_accent
 	if(ahk_volume){
 		hGuiacc := WinExist()
 	}
 
-	Gui white_block: +ToolWindow +LastFound +AlwaysOnTop -Caption
+	Gui white_block: +ToolWindow +LastFound -Caption +Ownerback
 	Gui white_block:Color,  %color%, volume_block
 
 	if(ahk_volume){
@@ -463,9 +447,6 @@ hide_default(){
 }
 hide(){
 	ahk_volume := 1
-	stop := 0
-	check := 0
-	running := 1
 	Gui back:Hide
 	Gui, Hide
 	Gui bar_back: Hide
@@ -477,16 +458,3 @@ hide(){
 hide:
 	hide()
 	return
-
-
-IsKeyPressed(v_KeyName)
-; Returns 1 if %v_KeyName% is currently being pressed, otherwise 0
-{
-GetKeyState, state, %v_KeyName%, 
-
-If state = D ; The key has been pressed
-{
-Return 1
-}
-Return 0
-}
