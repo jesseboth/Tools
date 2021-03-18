@@ -5,12 +5,8 @@ Menu,Tray,Icon,icons\icon_shell.ico
 
 	PATH = %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe
 	SHORTCUT = C:\Users\jesse\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Windows PowerShell\Windows PowerShell
-	if not WinExist("ahk_exe " PATH){
+	if not WinExist("Windows PowerShell"){
 		run %SHORTCUT%
-		While(not WinExist("ahk_exe " PATH)){
-			sleep 10
-		}
-
 	}
 	else{
 	 	WinActivate, ahk_exe %PATH%
