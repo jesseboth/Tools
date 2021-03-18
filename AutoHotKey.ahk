@@ -7,11 +7,21 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 Menu,Tray,Icon,icons\Icon.ico
 
 global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954"
-global num := 45, base_color := "0f0f0f", pos := "X62 Y75 W65 H140", accent_color := "0f99e3", bar_background := "707070", bar_pos := "X96 Y100 W11 H80", num_pos:="X77 Y204 W35 H20", white_block :="ffffff", default_volume :=1, ahk_volume:=1,
-Gui, Add, Text,cWhite w20 h20 Center vSpotVol, 
+global num := 45, base_color := "121212", accent_color := "0f99e3", bar_background := "707070", white_block :="ffffff", default_volume :=1, ahk_volume:=1,
+Gui, Add, Text,cWhite w20 h20 Center vSpotVol
 volume_set(spotify_volume, "spotify.exe") ;;set init
 volume_set(chrome_volume, "chrome.exe")
-master_volume(master_volume)
+master_volume(master_volume, 0)
+;;get primary monitor for scaling
+Sysget, primMon, MonitorPrimary
+if (primMon == 1){
+	global gui_bar_back := "X96 y100 W11", gui_block := "w11 h11 X96", gui_back := "X62 Y75 W65 H140", gui_text := "X77 Y201 W35 H30", gui_accent := "X96 Y100 W11 H79"
+	global max_block:=100, min_block:=185, dif_block:=85, dif_bar:=74,
+}
+else{
+	global gui_bar_back := "X77 y80 W11", gui_block := "w11 h11 X77", gui_back := "X50 Y60 W65 H140", gui_text := "X62 Y161 W35 H30", gui_accent := "X77 Y80 W11 H79"
+	global max_block:=100, min_block:=148, dif_block:=68, dif_bar:=74
+}
 
 ;;for making shortcuts for programming
 Coding(){
@@ -36,7 +46,8 @@ F4::
 		While(not WinExist("ahk_exe " PATH)){
 			sleep 10
 		}
-		volume_set(spotify_volume, "Volume\spotify_") ;;set init
+		sleep 100
+		volume_set(spotify_volume, "spotify.exe")
 		
 /*
 	Do something here?
@@ -55,14 +66,17 @@ F4::
 ^Media_Play_Pause::
 	PATH = C:\Users\jesse\AppData\Roaming\Spotify\Spotify.exe
 	SHORTCUT = Apps\shortcuts\Spotify.lnk
+	hwnd:=WinActive("A") ; get current active window
 	run %SHORTCUT%
 	While(not WinExist("ahk_exe " PATH)){
 		sleep 10
 	}
-	volume_set(spotify_volume, "Volume\spotify_") ;;set init
-	Send {Media_Play_Pause}
+	sleep 100 
+	volume_set(spotify_volume, "spotify.exe")
+	Send {Space}
 	Sleep, 100
 	WinClose, ahk_exe %PATH%
+	WinActivate ahk_id %hwnd%
 	return
 	
 #`:: ; [Win]+[`]
@@ -107,6 +121,9 @@ F4::
 	
 !Media_Prev::
 	Send !{F4}
+F13::
+	DllCall("PowrProf\SetSuspendState", "int", 0, "int", 1, "int", 0)
+	Return
 
 ;;CAPSLOCK = [Ctrl][Capslock];
 CapsLock::		; CapsLock;
@@ -126,11 +143,25 @@ PgDn::
 	return 
 
 
-^+t::
+~^!t::
 	if(not Coding()){
 		run Apps\shell.ahk
 
 	}
+	return
+
+#+v::
+	send #v
+	sleep 200
+	send {Down}
+	sleep 200
+	send {Enter}
+	sleep 300
+	send ^z
+	sleep 200
+	send #v
+	sleep 200
+	send {Enter}
 	return
 
 /*
@@ -293,23 +324,46 @@ volume_set(vol, app){
 	return
 }
 
-master_volume(vol){
+master_up(){
+	if(master_volume < 1){
+		master_volume += .02
+		master_volume(master_volume, 1)
+	}
+	return
+}
+master_down(){
+	if(master_volume > .01){
+		master_volume -= .02
+		master_volume(master_volume, 1)
+	}
+	return
+}
+
+master_volume(vol, Check){
 	max = 65535
 	value := (vol * max)
 	value := Round(value, 0)
 	set := "nircmd.exe setvolume 0 " value " " value
 	run %set%
+	gui_vol := (vol*100)
+	if(Check){
+		show_default()
+	}
 	return
 }
 
 select_audio_out(){
 	if(audio_out == 0){
 		set := "nircmd setdefaultsounddevice Headphones"
+		master_volume := .3
+		volume_set(master_volume, 0)
 		audio_out +=1
 	}
 	else{
 		if(audio_out = 1){
 			set := "nircmd setdefaultsounddevice Headset"
+			master_volume := .15
+			volume_set(master_volume, 0)
 			audio_out = 0
 		}
 	}
@@ -340,36 +394,21 @@ createGui(num, color){
 		; Removes the Border and Task bar icon
 	Gui back:+ToolWindow +LastFound +AlwaysOnTop -Caption +Disabled
 	Gui back:Color, %base_color%, volume_back
-	if(ahk_volume){
-		hGuiBack := WinExist()
-	}
+    
+    Gui accent_bar: +ToolWindow +LastFound -Caption +Ownerback
+	Gui accent_bar: Color, %accent_color%, volume_accent
 
 
 	Gui bar_back: +ToolWindow +LastFound -Caption +Ownerback
 	Gui bar_back:Color,  %bar_background%, volume_bar
-	if(ahk_volume){
-		hGuiBarBack := WinExist()
-	}
 
 	Gui, +ToolWindow +LastFound -Caption +Alwaysontop +Ownerback
 	Gui, Color, %base_color%,volume_num
-	if(ahk_volume){
-		hGuitext := WinExist()
-	}
-
-	Gui, Font, s10 cWhite, Marlet
-
-	Gui accent_bar: +ToolWindow +LastFound -Caption +Ownerback
-	Gui accent_bar: Color, %accent_color%, volume_accent
-	if(ahk_volume){
-		hGuiacc := WinExist()
-	}
 
 	Gui white_block: +ToolWindow +LastFound -Caption +Ownerback
 	Gui white_block:Color,  %color%, volume_block
 
 	if(ahk_volume){
-		hGuibox := WinExist()
 		ahk_volume = 0
 	}
 	
@@ -379,55 +418,44 @@ createGui(num, color){
 	*/
 	Value := Round(num)
 	place = %Value%
-	Gui back: Show, %pos% NoActivate, volume_back
-	Gui,  Show, %num_pos% NoActivate, volume_num
-	Gui bar_back:Show, %bar_pos% NoActivate, volume_bar
-	GuiControl, Font, SpotVol
-	WinSet, Transparent, 240, volume_back
-	WinSet, TransColor, %base_color% 240, volume_num
 
-	if(num == 0){
-		Gui, Font, s10 cWhite Bold, Marlet
-		GuiControl,,SpotVol,X
+	Gui back: Show, %gui_back% NoActivate, volume_back
+	Gui,  Show, %gui_text% NoActivate, volume_num
+
+	GuiControl, Font, SpotVol
+	WinSet, Transparent, 243, volume_back
+	WinSet, TransColor, %base_color% 243, volume_num
+
+	if(%place% == 0){
+		Gui, Font, s12 cWhite w700 Bold, Marlett
+		GuiControl,,SpotVol,r
 		GuiControl, Font, SpotVol
 	}
 	else{
-		Gui, Font, s10 cWhite Normal, Marlet
+		Gui, Font, s10 cWhite w500, Segoe UI Semibold
 		GuiControl,,SpotVol,%place%
 		GuiControl, Font, SpotVol
 	}
-	max_block:=100
-	min_block:=185
-	dif_block:=85
-	block_place:=min_block-num/100*dif_block
-	max_bar := 80
-	max_bot := 110
-	bar_height := num/100*max_bar
-	bar_y := 200-num
 
-	Gui accent_bar: Show, X96 y%bar_y% W11 h%bar_height% NoActivate, volume_accent
-	Gui white_block:  Show, w11 h11 X96 y%block_place% NoActivate, volume_block
+	block_place:=min_block-num/100*dif_block
+    bar_height := dif_bar - num/100*dif_bar
 	
+	Gui bar_back: Show, %gui_bar_back% h%bar_height% NoActivate, volume_bar
+	Gui accent_bar:Show, %gui_accent% NoActivate, volume_bar
+	Gui white_block:  Show, %gui_block% y%block_place% NoActivate, volume_block	
+
 	;hide after x seconds
 	SetTimer, hide, 2500
 	Return
 }
 
-
-~LButton::
-    MouseGetPos,,, hWinUM
-    if (hWinUM == hGuiBack or hWinUM == hGuiBarBack or hWinUM == hGuitext or hWinUM == hGuibox or hWinUM == hGuiacc){
-        hide()
-    }
-    return
-
 ~Volume_Down::
-	show_default()
+	master_down()
 	hide()
 	return
 
 ~Volume_Up::
-	show_default()
+	master_up()
 	hide()
 	return
 
