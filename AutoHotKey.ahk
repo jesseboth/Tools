@@ -48,6 +48,7 @@ F4::
 		}
 		sleep 100
 		volume_set(spotify_volume, "spotify.exe")
+		WinMove, ,,,,1, 1	; min size
 		
 /*
 	Do something here?
@@ -64,19 +65,8 @@ F4::
 	return
 
 ^Media_Play_Pause::
-	PATH = C:\Users\jesse\AppData\Roaming\Spotify\Spotify.exe
-	SHORTCUT = Apps\shortcuts\Spotify.lnk
-	hwnd:=WinActive("A") ; get current active window
-	run %SHORTCUT%
-	While(not WinExist("ahk_exe " PATH)){
-		sleep 10
-	}
-	sleep 100 
-	volume_set(spotify_volume, "spotify.exe")
-	Send {Space}
-	Sleep, 100
-	WinClose, ahk_exe %PATH%
-	WinActivate ahk_id %hwnd%
+	play_pause := "spotify toggle"
+	run %play_pause%,,Hide
 	return
 	
 #`:: ; [Win]+[`]
@@ -101,6 +91,8 @@ F4::
 	}
 	return 
 	
+#c::
+	return
 
 !z:: ; [alt]+[z]
 	Send {Volume_Up}  ;show current song
@@ -202,6 +194,25 @@ for VS Code ----------------------------------------------
 	Send,  {F9}
 	Return
 
++#k::                                                                ; convert to capitalized case
+ Convert_Cap()
+RETURN
+Convert_Cap()
+{
+ Clip_Save:= ClipboardAll                                                 ; save original contents of clipboard
+ Clipboard:= ""                                                           ; empty clipboard
+ Send ^c{delete}                                                          ; copy highlighted text to clipboard
+ StringLower Clipboard, Clipboard                                         ; convert clipboard to desired case
+ Send %Clipboard%                                                         ; send desired text
+ Len:= Strlen(Clipboard)
+ Send +{left %Len%}                                                       ; highlight text
+ Clipboard:= Clip_Save                                                    ; restore clipboard
+}
+
+                                                            
+                                                              
+
+
 /*
 arrow keys--------------------------------------------------
 */
@@ -257,10 +268,11 @@ spotify_down(){
 	createGui(spotify_volume*100, spotify_green)
 	return
 }
-
+F23::
 ^Volume_Up::
 	spotify_up()
 	Return
+F24::
 ^Volume_Down::
 	spotify_down()
 	return
@@ -485,4 +497,63 @@ hide(){
 
 hide:
 	hide()
+	return
+
+
+;move window
+; move active right
+#+right::
+	wingetpos x, y,,, A  
+	x += 50			      
+	winmove, A,,%x%, %y%  
+	return				  
+
+; move active left
+#+left::
+	wingetpos x, y,,, A
+	x -= 50
+	winmove, A,,%x%, %y%
+	return
+
+; move active up
+#+Up::
+	wingetpos x, y,,, A
+	y -= 50
+	winmove, A,,%x%, %y%
+	return
+
+; move active down
+#+Down::
+	wingetpos x, y,,, A
+	y += 50
+	winmove, A,,%x%, %y%
+	return
+
+
+
+#^+right::
+	wingetpos x, y,w,h, A  
+	w += 50			      
+	winmove, A,,%x%, %y%, %w%, %h%
+	return				  
+
+; move active left
+#^+left::
+	wingetpos x, y,w,h, A  
+	w -= 50
+	winmove, A,,%x%, %y%, %w%, %h%
+	return
+
+; move active up
+#^+Up::
+	wingetpos x, y,w,h, A  
+	h -= 50
+	winmove, A,,%x%, %y%, %w%, %h%
+	return
+
+; move active down
+#^+Down::
+	wingetpos x, y,w,h, A  
+	h += 50
+	winmove, A,,%x%, %y%, %w%, %h%
 	return

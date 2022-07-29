@@ -8,6 +8,9 @@ Menu,Tray,Icon,icons\icon_shell.ico
 	if not WinExist("Windows PowerShell"){
 		run %SHORTCUT%
 	}
+	else if not WinActive("Windows PowerShell"){
+			WinActivate, ahk_exe %PATH%
+	}
 	else{
-	 	WinActivate, ahk_exe %PATH%
+		run %SHORTCUT%
 	}
