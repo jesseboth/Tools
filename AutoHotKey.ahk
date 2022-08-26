@@ -5,8 +5,9 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #SingleInstance, Force
 
 Menu,Tray,Icon,icons\Icon.ico
+SetCapsLockState, Off
 
-global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .3, audio_out := 0, spotify_green := "1DB954"
+global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .5, audio_out := 0, spotify_green := "1DB954"
 global num := 45, base_color := "121212", accent_color := "0f99e3", bar_background := "707070", white_block :="ffffff", default_volume :=1, ahk_volume:=1,
 Gui, Add, Text,cWhite w20 h20 Center vSpotVol
 volume_set(spotify_volume, "spotify.exe") ;;set init
@@ -14,7 +15,8 @@ volume_set(chrome_volume, "chrome.exe")
 master_volume(master_volume, 0)
 ;;get primary monitor for scaling
 Sysget, primMon, MonitorPrimary
-if (primMon == 1){
+
+if (primMon == 2){
 	global gui_bar_back := "X96 y100 W11", gui_block := "w11 h11 X96", gui_back := "X62 Y75 W65 H140", gui_text := "X77 Y201 W35 H30", gui_accent := "X96 Y100 W11 H79"
 	global max_block:=100, min_block:=185, dif_block:=85, dif_bar:=74,
 }
@@ -23,9 +25,10 @@ else{
 	global max_block:=100, min_block:=148, dif_block:=68, dif_bar:=74
 }
 
+
 ;;for making shortcuts for programming
 Coding(){
-	Code = C:\Users\jesse\AppData\Local\Programs\Microsoft VS Code\Code.exe
+	Code = C:\Users\jesse.both\AppData\Local\Programs\Microsoft VS Code\Code.exe
 	if WinActive("ahk_exe " Code ){
 		return True
 	}
@@ -34,12 +37,44 @@ Coding(){
 	}
 }
 
-^TAB:: Winset, Alwaysontop, , A
+#t:: Winset, Alwaysontop, , A
 Return
+
+;; YouTube keybinding
+PrintScreen::
+	TITLE = YouTube
+	SetTitleMatchMode, 1
+	SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
+	if not WinExist(TITLE){
+		run %SHORTCUT%
+		While(not WinExist(TITLE)){
+			sleep 10
+		}
+		sleep 100
+		Winset, Alwaysontop, On, %TITLE%
+	}
+	else{
+		WinGet, State, MinMax, %TITLE%
+		if (STATE == -1){
+			prev:=WinActive("A")
+			WinActivate, %TITLE%
+			Winset, Alwaysontop, On, %TITLE%
+			 if prev
+				WinActivate, ahk_id %prev%
+		}
+		else if(WinActive(TITLE)){
+			WinMinimize, %TITLE%
+		}
+		else{
+			WinMinimize, %TITLE%
+		}
+	}
+	return
+		
 
 #Media_Play_Pause::
 F4::
-	PATH = C:\Users\jesse\AppData\Roaming\Spotify\Spotify.exe
+	PATH = C:\Users\jesse.both\AppData\Roaming\Spotify\Spotify.exe
 	SHORTCUT = Apps\shortcuts\Spotify.lnk
 	if not WinExist("ahk_exe " PATH){
 		run %SHORTCUT%
@@ -75,15 +110,15 @@ F4::
     return	
 
 ^F4:: ; [Win]+[Home]
-	PATH = C:\Users\jesse\Downloads\installers\Wabbitemu.exe
-	SHORTCUT = C:\Users\jesse\Downloads\installers\Calculator.lnk
+	PATH = C:\Users\jesse.both\Downloads\installers\Wabbitemu.exe
+	SHORTCUT = C:\Users\jesse.both\Downloads\installers\Calculator.lnk
 	if not WinExist("ahk_exe " PATH){
 		run %SHORTCUT%
 		While(not WinExist("ahk_exe " PATH)){
 			sleep 10
 		}
 		WinGet, window, ID, A
-	    	WinMove, ahk_exe C:\Users\jesse\Downloads\installers\Wabbitemu.exe, , , , 450, 900
+	    	WinMove, ahk_exe C:\Users\jesse.both\Downloads\installers\Wabbitemu.exe, , , , 450, 900
 
 	}
 	else{
@@ -94,21 +129,31 @@ F4::
 #c::
 	return
 
-!z:: ; [alt]+[z]
+#/:: ; [alt]+[z]
 	Send {Volume_Up}  ;show current song
 	Send {Volume_Down} 
 	return 
 
+*CapsLock Up:: SendInput, {Ctrl Up}{Shift Up}
+*CapsLock:: SendInput, {Ctrl Down}{Shift Down}
+
 ^+bs::
-	Send {HOME}+{END}+{bs}{END}
+	SendInput, {Ctrl Up}{Shift Up}
+	Send {HOME}+{END}+{bs}
+	SendInput, {Ctrl Down}{Shift Down}
 	return
 
 ^+c::
+	SendInput, {Ctrl Up}{Shift Up}
 	Send {HOME}+{END}^c{END}
+	SendInput, {Ctrl Down}{Shift Down}
 	return
 
 ^+x::
-	Send {home}{shift down}{down}{shift up}^x
+	SendInput, {Ctrl Up}{Shift Up}
+	; Send {home}{shift down}{down}{shift up}^x
+	Send {HOME}+{Shift down}+{END}+{shift up}^x{END}
+	SendInput, {Ctrl Down}{Shift Down}
 	return
 	
 !Media_Prev::
@@ -118,21 +163,21 @@ F13::
 	Return
 
 ;;CAPSLOCK = [Ctrl][Capslock];
-CapsLock::		; CapsLock;
-+CapsLock::	; Shift+CapsLock
-!CapsLock::	; Alt+CapsLock
-#CapsLock::		; Win+CapsLock
-^!CapsLock::	; Ctrl+Alt+CapsLock
-^!#CapsLock::	; Ctrl+Alt+Win+CapsLock
+;CapsLock::		; CapsLock;
+;+CapsLock::	; Shift+CapsLock
+;!CapsLock::	; Alt+CapsLock
+;#CapsLock::		; Win+CapsLock
+;^!CapsLock::	; Ctrl+Alt+CapsLock
+;^!#CapsLock::	; Ctrl+Alt+Win+CapsLock
 ;............	; You can add whatever you want to block
 return			; Do nothing, return
 
-PgUp:: 
-	Send {Left}
-	return
-PgDn:: 
-	Send {Right}
-	return 
+; PgUp:: 
+; 	Send {Left}
+; 	return
+; PgDn:: 
+; 	Send {Right}
+; 	return 
 
 
 ~^!t::
@@ -367,7 +412,7 @@ master_volume(vol, Check){
 select_audio_out(){
 	if(audio_out == 0){
 		set := "nircmd setdefaultsounddevice Headphones"
-		master_volume := .3
+		master_volume := .5
 		volume_set(master_volume, 0)
 		audio_out +=1
 	}
@@ -388,9 +433,9 @@ select_audio_out(){
 	select_audio_out()
 	return
 
-#t::
-	createGui(spotify_volume*100, green)
-	return
+; #t::
+; 	createGui(spotify_volume*100, green)
+; 	return
 ; Removes the Border and Task bar icon
 
 /*
