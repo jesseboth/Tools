@@ -41,9 +41,33 @@ Coding(){
 Return
 
 ;; YouTube keybinding
+^PrintScreen::
+         TITLE = YouTube
+         SetTitleMatchMode, 1
+		 DetectHiddenWindows, on
+         SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
+         if not WinExist(TITLE){
+                 run %SHORTCUT%
+                 While(not WinExist(TITLE)){
+                         sleep 10
+                 }
+                 sleep 100
+                 Winset, Alwaysontop, On, %TITLE%
+         }
+         else{
+                 prev:=WinActive("A")
+                 WinShow, %TITLE%
+                 WinActivate, %TITLE%
+                 Winset, Alwaysontop, On, %TITLE%
+                 
+         }
+         return
+
+;; YouTube keybinding
 PrintScreen::
 	TITLE = YouTube
 	SetTitleMatchMode, 1
+	DetectHiddenWindows, on
 	SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
 	if not WinExist(TITLE){
 		run %SHORTCUT%
@@ -54,9 +78,10 @@ PrintScreen::
 		Winset, Alwaysontop, On, %TITLE%
 	}
 	else{
-		WinGet, State, MinMax, %TITLE%
-		if (STATE == -1){
+		WinGet, STATE, MinMax, %TITLE%
+		if ((STATE == -1)){
 			prev:=WinActive("A")
+			WinShow, %TITLE%
 			WinActivate, %TITLE%
 			Winset, Alwaysontop, On, %TITLE%
 			 if prev
@@ -64,9 +89,11 @@ PrintScreen::
 		}
 		else if(WinActive(TITLE)){
 			WinMinimize, %TITLE%
+			WinHide, %TITLE%
 		}
 		else{
 			WinMinimize, %TITLE%
+			WinHide, %TITLE%
 		}
 	}
 	return
@@ -373,7 +400,7 @@ chrome_down(){
 		createGui(chrome_volume*100, "FF0000")
 	}
 	Return
-
+#include <VA>
 volume_set(vol, app){
 	value := Round(vol, 2)
 	set := "nircmd.exe setappvolume " app " " value
@@ -397,7 +424,7 @@ master_down(){
 }
 
 master_volume(vol, Check){
-	max = 65535
+	max = 65535	
 	value := (vol * max)
 	value := Round(value, 0)
 	set := "nircmd.exe setvolume 0 " value " " value
@@ -410,23 +437,10 @@ master_volume(vol, Check){
 }
 
 select_audio_out(){
-	if(audio_out == 0){
-		set := "nircmd setdefaultsounddevice Headphones"
-		master_volume := .5
-		volume_set(master_volume, 0)
-		audio_out +=1
-	}
-	else{
-		if(audio_out = 1){
-			set := "nircmd setdefaultsounddevice Headset"
-			master_volume := .15
-			volume_set(master_volume, 0)
-			audio_out = 0
-		}
-	}
-
-	run %set%
-	return
+	Send, #k
+	sleep 1500
+	Send, {tab}{down}{down}{enter}{esc}
+return
 }
 
 #h::
