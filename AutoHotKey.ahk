@@ -9,6 +9,7 @@ SetCapsLockState, Off
 
 global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .5, audio_out := 0, spotify_green := "1DB954"
 global num := 45, base_color := "121212", accent_color := "0f99e3", bar_background := "707070", white_block :="ffffff", default_volume :=1, ahk_volume:=1,
+global YT_X := 555, YT_Y := 1540, YT_W := 516, YT_H := 306
 Gui, Add, Text,cWhite w20 h20 Center vSpotVol
 volume_set(spotify_volume, "spotify.exe") ;;set init
 volume_set(chrome_volume, "chrome.exe")
@@ -53,7 +54,19 @@ Return
                  }
                  sleep 100
                  Winset, Alwaysontop, On, %TITLE%
+				WinMove, %TITLE%,, YT_X, YT_Y-500, YT_W, YT_H+500
          }
+		 else if(WinActive(TITLE)){
+			WinGetPos, TMP_X, TMP_Y, TMP_W, TMP_H
+			if(TMP_X == YT_X and TMP_Y == YT_Y and TMP_W == YT_W and TMP_H == YT_H){
+				WinMove, %TITLE%,, YT_X, YT_Y-500, YT_W, YT_H+500
+				SendInput, {Esc}
+			}
+			else{
+				WinMove, %TITLE%,, YT_X, YT_Y, YT_W, YT_H
+				SendInput, {=}
+			}
+		 }
          else{
                  prev:=WinActive("A")
                  WinShow, %TITLE%
@@ -76,6 +89,8 @@ PrintScreen::
 		}
 		sleep 100
 		Winset, Alwaysontop, On, %TITLE%
+		; WinMove, %TITLE%,, YT_X, YT_Y, YT_W, YT_H
+		WinMove, %TITLE%,, YT_X, YT_Y-500, YT_W, YT_H+500
 	}
 	else{
 		WinGet, STATE, MinMax, %TITLE%
@@ -88,19 +103,21 @@ PrintScreen::
 				WinActivate, ahk_id %prev%
 		}
 		else if(WinActive(TITLE)){
+			; WinMove, %TITLE%,, YT_X, YT_Y, YT_W, YT_H
 			WinMinimize, %TITLE%
 			WinHide, %TITLE%
 		}
-		else{
+		else{			
+			; WinMove, %TITLE%,, YT_X, YT_Y, YT_W, YT_H
 			WinMinimize, %TITLE%
 			WinHide, %TITLE%
 		}
 	}
 	return
 		
-
 #Media_Play_Pause::
 F4::
+#c::
 	PATH = C:\Users\jesse.both\AppData\Roaming\Spotify\Spotify.exe
 	SHORTCUT = Apps\shortcuts\Spotify.lnk
 	if not WinExist("ahk_exe " PATH){
@@ -118,7 +135,7 @@ F4::
 	}
 	else{
 		if(WinActive("ahk_exe " PATH)){
-			WinClose, ahk_exe %PATH%
+			WinHide, ahk_exe %PATH%
 		}
 		else{
 			WinActivate, ahk_exe %PATH%
@@ -127,8 +144,8 @@ F4::
 	return
 
 ^Media_Play_Pause::
-	play_pause := "spotify toggle"
-	run %play_pause%,,Hide
+	PATH = C:\Users\jesse.both\AppData\Roaming\Spotify\Spotify.exe
+	ControlSendRaw, , space, ahk_exe %PATH%
 	return
 	
 #`:: ; [Win]+[`]
@@ -152,9 +169,7 @@ F4::
 		WinActivate, ahk_exe %PATH%
 	}
 	return 
-	
-#c::
-	return
+
 
 #/:: ; [alt]+[z]
 	Send {Volume_Up}  ;show current song
@@ -289,37 +304,38 @@ Convert_Cap()
 arrow keys--------------------------------------------------
 */
 
-; ^i::
+; *^k::
 ; 	Send {up}
 ; 	return
 
-; ^j::
-; 	Send {left}
-; 	return
-
-; ^l::
-; 	Send {right}
-; 	return
-
-; ^k::
+; *^j::
 ; 	Send {down}
 ; 	return
 
-; ^+i::
+; *^l::
+; 	Send {right}
+; 	return
+
+; *^h::
+; 	Send {left}
+; 	return
+
+; *^+k::
 ; 	Send +{up}
 ; 	return
 
-; ^+j::
-; 	Send +{Left}
+; *^+j::
+; 	Send +{down}
 ; 	return
 
-; ^+k::
-; 	Send +{Down}
+; *^+l::
+; 	Send +{right}
 ; 	return
 
-; ^+l::
-; 	Send +{Right}
+; *^+h::
+; 	Send +{left}
 ; 	return
+
 
 ;spotify_spotify_volume-------------------------------------------------------------------------------
 spotify_up(){
@@ -400,7 +416,7 @@ chrome_down(){
 		createGui(chrome_volume*100, "FF0000")
 	}
 	Return
-#include <VA>
+
 volume_set(vol, app){
 	value := Round(vol, 2)
 	set := "nircmd.exe setappvolume " app " " value
@@ -615,4 +631,9 @@ hide:
 	wingetpos x, y,w,h, A  
 	h += 50
 	winmove, A,,%x%, %y%, %w%, %h%
+	return
+
+#z::
+	hide_default()
+	show_default()
 	return
