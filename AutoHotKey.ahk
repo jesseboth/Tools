@@ -9,7 +9,7 @@ SetCapsLockState, Off
 
 global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .5, audio_out := 0, spotify_green := "1DB954"
 global num := 45, base_color := "121212", accent_color := "0f99e3", bar_background := "707070", white_block :="ffffff", default_volume :=1, ahk_volume:=1,
-global YT_X := 555, YT_Y := 1540, YT_W := 516, YT_H := 306
+global YT_X := 555, YT_Y := 1580, YT_W := 516, YT_H := 306
 Gui, Add, Text,cWhite w20 h20 Center vSpotVol
 volume_set(spotify_volume, "spotify.exe") ;;set init
 volume_set(chrome_volume, "chrome.exe")
