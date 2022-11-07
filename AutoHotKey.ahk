@@ -43,6 +43,7 @@ Return
 
 #i::
 WinGetTitle, Title, A
+Clipboard := Title
 MsgBox, %Title%
 return
 
@@ -59,9 +60,12 @@ return
     if WinExist("Netflix"){
       TITLE = Netflix
     }
-    
+    else if WinExist("HBO Max"){
+        TITLE = HBO Max
+    }
+
     SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
-    if not WinExist(TITLE) && TITLE == Youtube {
+    if not WinExist(TITLE){
       run %SHORTCUT%
       While(not WinExist(TITLE)){
         sleep 10
@@ -99,9 +103,12 @@ PrintScreen::
   if WinExist("Netflix"){
     TITLE = Netflix
   }
-  
+  else if WinExist("HBO Max"){
+      TITLE = HBO Max
+  }
+
   SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
-  if not WinExist(TITLE) && TITLE == Youtube{
+  if not WinExist(TITLE){
     run %SHORTCUT%
     While(not WinExist(TITLE)){
       sleep 10
