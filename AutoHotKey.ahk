@@ -57,11 +57,17 @@ return
     DetectHiddenWindows, on
 
     TITLE = YouTube
-    if WinExist("Netflix"){
+    if WinExist("Picture in picture"){
+      TITLE = Picture in picture
+    }
+    if else WinExist("Netflix"){
       TITLE = Netflix
     }
     else if WinExist("HBO Max"){
         TITLE = HBO Max
+    }
+    else if WinExist("HBOMax"){
+      TITLE = HBOMax
     }
 
     SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
@@ -85,13 +91,12 @@ return
         SendInput, {=}
       }
     }
-         else{
-                 prev:=WinActive("A")
-                 WinShow, %TITLE%
-                 WinActivate, %TITLE%
-                 Winset, Alwaysontop, On, %TITLE%
-                 
-         }
+    else{
+      prev:=WinActive("A")
+      WinShow, %TITLE%
+      WinActivate, %TITLE%
+      Winset, Alwaysontop, On, %TITLE%
+    }
          return
 
 ;; YouTube keybinding
@@ -100,11 +105,17 @@ PrintScreen::
   SetTitleMatchMode, 1
   
   TITLE = YouTube
-  if WinExist("Netflix"){
+  if WinExist("Picture in picture"){
+      TITLE = Picture in picture
+  }
+  else if WinExist("Netflix"){
     TITLE = Netflix
   }
   else if WinExist("HBO Max"){
       TITLE = HBO Max
+  }
+  else if WinExist("HBOMax"){
+      TITLE = HBOMax
   }
 
   SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
