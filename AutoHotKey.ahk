@@ -69,6 +69,9 @@ return
     else if WinExist("HBOMax"){
       TITLE = HBOMax
     }
+    else if WinExist("Live - YouTube TV"){
+      TITLE = Live - YouTube TV
+    }
 
     SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
     if not WinExist(TITLE){
@@ -116,6 +119,9 @@ PrintScreen::
   }
   else if WinExist("HBOMax"){
       TITLE = HBOMax
+  }
+  else if WinExist("Home - YouTube TV"){
+      TITLE = Home - YouTube TV
   }
 
   SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
