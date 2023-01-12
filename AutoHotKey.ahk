@@ -72,6 +72,12 @@ return
     else if WinExist("Live - YouTube TV"){
       TITLE = Live - YouTube TV
     }
+    else if WinExist("Home - YouTube TV"){
+      TITLE = Home - YouTube TV
+    }
+    else if WinExist("Plex"){
+      TITLE = Plex
+    }
 
     SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
     if not WinExist(TITLE){
@@ -106,7 +112,7 @@ return
 PrintScreen::
   DetectHiddenWindows, on
   SetTitleMatchMode, 1
-  
+  ; ▶
   TITLE = YouTube
   if WinExist("Picture in picture"){
       TITLE = Picture in picture
@@ -120,9 +126,16 @@ PrintScreen::
   else if WinExist("HBOMax"){
       TITLE = HBOMax
   }
+  else if WinExist("Live - YouTube TV"){
+      TITLE = Live - YouTube TV
+  }
   else if WinExist("Home - YouTube TV"){
       TITLE = Home - YouTube TV
   }
+  else if WinExist("Plex"){
+      TITLE = Plex
+  }
+
 
   SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
   if not WinExist(TITLE){
@@ -150,7 +163,7 @@ PrintScreen::
       WinMinimize, %TITLE%
       WinHide, %TITLE%
     }
-    else{			
+    else{
       ; WinMove, %TITLE%,, YT_X, YT_Y, YT_W, YT_H
       WinMinimize, %TITLE%
       WinHide, %TITLE%
@@ -161,9 +174,11 @@ PrintScreen::
 #Media_Play_Pause::
 F4::
 #c::
+  DetectHiddenWindows, On
   PATH = C:\Users\jesse.both\AppData\Roaming\Spotify\Spotify.exe
   SHORTCUT = Apps\shortcuts\Spotify.lnk
-  if not WinExist("ahk_exe " PATH){
+  WinGetTitle, title, ahk_exe %PATH%
+  if not WinExist(title){
     run %SHORTCUT%
     While(not WinExist("ahk_exe " PATH)){
       sleep 10
@@ -171,26 +186,42 @@ F4::
     sleep 100
     volume_set(spotify_volume, "spotify.exe")
     WinMove, ,,,,1, 1	; min size
-    
-/*
-  Do something here?
-*/
   }
   else{
-    if(WinActive("ahk_exe " PATH)){
-      WinHide, ahk_exe %PATH%
+    if(WinActive(title)){
+      WinMinimize, %title%
+      WinHide, %title%
     }
     else{
+      WinShow, ahk_exe %PATH%
       WinActivate, ahk_exe %PATH%
     }
   }
   return
 
 ^Media_Play_Pause::
-  MsgBox, HERE
-  DetectHiddenWindows, On
-  WinMenuSelectItem, ahk_class SpotifyMainWindow, , 4&, 1&
-  DetectHiddenWindows, Off
+  ; DetectHiddenWindows, On
+  ; prev:=WinActive("A")
+
+  ; PATH = C:\Users\jesse.both\AppData\Roaming\Spotify\Spotify.exe
+  ; SHORTCUT = Apps\shortcuts\Spotify.lnk
+  ; WinGetTitle, title, ahk_exe %PATH%
+  ; if not WinExist(title){
+  ;   run %SHORTCUT%
+  ;   While(not WinExist("ahk_exe " PATH)){
+  ;     sleep 10
+  ;   }
+  ;   sleep 100
+  ;   WinMove, ,,,,1, 1	; min size
+  ; }
+
+
+  ; WinHide, %title%
+  ; WinActivate, %title%
+  ; send {Space}
+
+  ; if prev
+  ;   WinActivate, ahk_id %prev%
 return
 
 #`:: ; [Win]+[`]
