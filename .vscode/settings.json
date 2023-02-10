@@ -1,5 +1,40 @@
 {
-    "files.watcherExclude": {
-        "**/target": true
-    }
+  "files.watcherExclude": {
+    "**/target": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/.ccsproject": true,
+    "**/.cproject": true,
+    "**/.mbed": true,
+    "**/.metadata": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.travis.yml": true,
+    "**/*.asv": true,
+    "**/*.aux": true,
+    "**/*.jxbrowser-data": true,
+    "**/*.log": true,
+    "**/*.o": true,
+    "**/*.tmp": true,
+    "**/*.toc": true,
+    "**/*.VisualElementsManifest.xml": true,
+    "**/~$*": true,
+    "**/CONTRIBUTING.md": true,
+    "**/desktop.ini": true,
+    "**/documentation.out": true,
+    "**/dvt": true,
+    "**/LICENSE": true,
+    "**/mbed-os.lib": true,
+    "**/RemoteSystemsTempFiles": true,
+    "**/tm4c123gh6pm.cmd": true,
+    "**/.repo": true,
+    ".vscode": true
+  },
+  "hide-files.files": []
 }

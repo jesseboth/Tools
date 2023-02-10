@@ -728,3 +728,8 @@ hide:
 ; 	Click WheelDown
 ; 	Click WheelDown
 ; 	return
+
+#l::                                                 ; the pause/brake key on keyboard (change sc045 to #L for Win+L)
+    Sleep, 300                                          ; delay to prevent unintentional action stop
+    SendMessage, 0x112, 0xF140, 0,, Program Manager     ; 0x112 is WM_SYSCOMMAND -- 0xF140 is SC_SCREENSAVE
+Return
