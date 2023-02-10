@@ -7,7 +7,7 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 Menu,Tray,Icon,icons\Icon.ico
 SetCapsLockState, Off
 
-global spotify_volume := .5, spotify_mute := 1, chrome_volume := 1, chrome_mute := 1, master_volume := .5, audio_out := 0, spotify_green := "1DB954"
+global spotify_volume := 50, spotify_mute := 1, chrome_volume := 100, chrome_mute := 1, master_volume := .5, audio_out := 0, spotify_green := "1DB954"
 global num := 45, base_color := "121212", accent_color := "0f99e3", bar_background := "707070", white_block :="ffffff", default_volume :=1, ahk_volume:=1,
 global YT_X := 555, YT_Y := 1550, YT_W := 516, YT_H := 325
 Gui, Add, Text,cWhite w20 h20 Center vSpotVol
@@ -416,21 +416,21 @@ arrow keys--------------------------------------------------
 
 ;spotify_spotify_volume-------------------------------------------------------------------------------
 spotify_up(){
-  if(spotify_volume < 1){
-    spotify_volume += .05
+  if(spotify_volume < 100){
+    spotify_volume += 5
     volume_set(spotify_volume, "spotify.exe")
   }
-  createGui(spotify_volume*100, spotify_green)
+  createGui(spotify_volume, spotify_green)
   return
 }
 
 
 spotify_down(){
-  if((spotify_volume > .04)){
-    spotify_volume -= .05
+  if((spotify_volume > 4)){
+    spotify_volume -= 5
     volume_set(spotify_volume, "spotify.exe")
   }
-  createGui(spotify_volume*100, spotify_green)
+  createGui(spotify_volume, spotify_green)
   return
 }
 F23::
@@ -451,26 +451,26 @@ F24::
   else{
     spotify_mute = 1
     volume_set(spotify_volume, "spotify.exe")
-    createGui(spotify_volume*100, spotify_green)
+    createGui(spotify_volume, spotify_green)
 
   }
   Return
 ;chrome_volume ---------------------------------------------------------------------
 chrome_up(){
-  if(chrome_volume < 1){
-    chrome_volume += .05
+  if(chrome_volume < 100){
+    chrome_volume += 5
     volume_set(chrome_volume, "chrome.exe")
   }
-  createGui(chrome_volume*100, "FF0000")
+  createGui(chrome_volume, "FF0000")
   return
 }
 
 chrome_down(){
-  if(chrome_volume > .04){
-    chrome_volume -= .05
+  if(chrome_volume > 4){
+    chrome_volume -= 5
     volume_set(chrome_volume, "chrome.exe")
   }
-  createGui(chrome_volume*100, "FF0000")
+  createGui(chrome_volume, "FF0000")
   return
 }
 
@@ -496,8 +496,8 @@ chrome_down(){
 
 volume_set(vol, app){
   value := Round(vol, 2)
-  set := "nircmd.exe setappvolume " app " " value
-  run %set%
+  set := "Lib/svcl.exe /SetVolume " app " " value
+  run %set%,,hide
   return
 }
 
