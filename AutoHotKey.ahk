@@ -53,7 +53,7 @@ return
 
 ;; YouTube keybinding
 ^PrintScreen::
-    SetTitleMatchMode, 1
+    SetTitleMatchMode, 2
     DetectHiddenWindows, on
 
     TITLE = YouTube
@@ -72,8 +72,8 @@ return
     else if WinExist("Live - YouTube TV"){
       TITLE = Live - YouTube TV
     }
-    else if WinExist("Home - YouTube TV"){
-      TITLE = Home - YouTube TV
+    else if WinExist("YouTube TV"){
+      TITLE = YouTube TV
     }
     else if WinExist("Plex"){
       TITLE = Plex
@@ -111,7 +111,7 @@ return
 ;; YouTube keybinding
 PrintScreen::
   DetectHiddenWindows, on
-  SetTitleMatchMode, 1
+  SetTitleMatchMode, 2
   ; ▶
   TITLE = YouTube
   if WinExist("Picture in picture"){
@@ -129,8 +129,8 @@ PrintScreen::
   else if WinExist("Live - YouTube TV"){
       TITLE = Live - YouTube TV
   }
-  else if WinExist("Home - YouTube TV"){
-      TITLE = Home - YouTube TV
+  else if WinExist("YouTube TV"){
+      TITLE = YouTube TV
   }
   else if WinExist("Plex"){
       TITLE = Plex
@@ -490,7 +490,7 @@ chrome_down(){
   else{
     chrome_mute = 1
     volume_set(chrome_volume, "chrome.exe")
-    createGui(chrome_volume*100, "FF0000")
+    createGui(chrome_volume, "FF0000")
   }
   Return
 
