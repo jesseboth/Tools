@@ -7,12 +7,26 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 Menu,Tray,Icon,icons\Icon.ico
 SetCapsLockState, Off
 
-global spotify_volume := 50, spotify_mute := 1, chrome_volume := 100, chrome_mute := 1, master_volume := .5, audio_out := 0, spotify_green := "1DB954"
+global spotify_volume := -1, spotify_mute := 1, chrome_volume := -1, chrome_mute := 1, master_volume := .5, audio_out := 0, spotify_green := "1DB954"
 global num := 45, base_color := "121212", accent_color := "0f99e3", bar_background := "707070", white_block :="ffffff", default_volume :=1, ahk_volume:=1,
-global YT_X := 555, YT_Y := 1550, YT_W := 516, YT_H := 325
+
+global BIAMP_LAPTOP = "BSI-US-9XJ43J3"
+global BIAMP_DESKTOP = ""
+global ComputerName = GetComputerNameEx(1)
+SysGet, NumMonitors, MonitorCount
+if (ComputerName == BIAMP_DESKTOP){
+  global YT_X := 555, YT_Y := 1550, YT_W := 516, YT_H := 325
+}
+else if (ComputerName == BIAMP_LAPTOP) && NumMonitors == 2 {
+  global YT_X := 1950, YT_Y := -504, YT_W := 740, YT_H := 499
+}
+else if (ComputerName == BIAMP_LAPTOP) && NumMonitors == 1 {
+  ; global YT_X := 2162, YT_Y := -350, YT_W := 516, YT_H := 325
+}
+
 Gui, Add, Text,cWhite w20 h20 Center vSpotVol
-volume_set(spotify_volume, "spotify.exe") ;;set init
-volume_set(chrome_volume, "chrome.exe")
+; volume_set(spotify_volume, "spotify.exe") ;;set init
+; volume_set(chrome_volume, "chrome.exe")
 master_volume(master_volume, 0)
 ;;get primary monitor for scaling
 Sysget, primMon, MonitorPrimary
@@ -29,8 +43,18 @@ else{
 
 ;;for making shortcuts for programming
 Coding(){
-  Code = C:\Users\jesse.both\AppData\Local\Programs\Microsoft VS Code\Code.exe
+  Code = Code.exe
   if WinActive("ahk_exe " Code ){
+    return True
+  }
+  else{
+    return False
+  }
+}
+
+Terminal(){
+  T = WindowsTerminal.exe
+  if WinActive("ahk_exe " T){
     return True
   }
   else{
@@ -50,7 +74,6 @@ return
 
 ; https://chrome.google.com/webstore/detail/windowed-floating-youtube/gibipneadnbflmkebnmcbgjdkngkbklb
 ; https://chrome.google.com/webstore/detail/youtube-windowed-fullscre/gkkmiofalnjagdcjheckamobghglpdpm
-
 ;; YouTube keybinding
 ^PrintScreen::
     SetTitleMatchMode, 1
@@ -136,7 +159,6 @@ PrintScreen::
       TITLE = Plex
   }
 
-
   SHORTCUT = "C:\Users\jesse.both\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Chrome Apps\Youtube"
   if not WinExist(TITLE){
     run %SHORTCUT%
@@ -199,31 +221,6 @@ F4::
   }
   return
 
-^Media_Play_Pause::
-  ; DetectHiddenWindows, On
-  ; prev:=WinActive("A")
-
-  ; PATH = C:\Users\jesse.both\AppData\Roaming\Spotify\Spotify.exe
-  ; SHORTCUT = Apps\shortcuts\Spotify.lnk
-  ; WinGetTitle, title, ahk_exe %PATH%
-  ; if not WinExist(title){
-  ;   run %SHORTCUT%
-  ;   While(not WinExist("ahk_exe " PATH)){
-  ;     sleep 10
-  ;   }
-  ;   sleep 100
-  ;   WinMove, ,,,,1, 1	; min size
-  ; }
-
-
-  ; WinHide, %title%
-  ; WinActivate, %title%
-  ; send {Space}
-
-  ; if prev
-  ;   WinActivate, ahk_id %prev%
-return
-
 #`:: ; [Win]+[`]
     WinGet, window, ID, A
     WinMove, ahk_id %window%, , , , 1000, 800
@@ -253,23 +250,23 @@ return
   Send {Volume_Down} 
   return 
 
-*CapsLock Up:: SendInput, {Ctrl Up}{Shift Up}
+*CapsLock Up:: SendInput, {Ctrl Up}{Shift Up}{Ctrl Up}{Ctrl Up}
 *CapsLock:: SendInput, {Ctrl Down}{Shift Down}
 
 ^+bs::
-  SendInput, {Ctrl Up}{Shift Up}
+  SendInput, {Ctrl Up}{Shift Up}{Ctrl Up}{Ctrl Up}
   Send {HOME}+{END}+{bs}
   SendInput, {Ctrl Down}{Shift Down}
   return
 
 ^+c::
-  SendInput, {Ctrl Up}{Shift Up}
+  SendInput, {Ctrl Up}{Shift Up}{Ctrl Up}{Ctrl Up}
   Send {HOME}+{END}^c{END}
   SendInput, {Ctrl Down}{Shift Down}
   return
 
 ^+x::
-  SendInput, {Ctrl Up}{Shift Up}
+  SendInput, {Ctrl Up}{Shift Up}{Ctrl Up}{Ctrl Up}
   ; Send {home}{shift down}{down}{shift up}^x
   Send {HOME}+{Shift down}+{END}+{shift up}^x{END}
   SendInput, {Ctrl Down}{Shift Down}
@@ -291,18 +288,10 @@ F13::
 ;............	; You can add whatever you want to block
 return			; Do nothing, return
 
-; PgUp:: 
-; 	Send {Left}
-; 	return
-; PgDn:: 
-; 	Send {Right}
-; 	return 
-
 
 ~^!t::
-  if(not Coding()){
+  if(not Coding() && not Terminal()){
     run Apps\shell.ahk
-
   }
   return
 
@@ -373,9 +362,6 @@ Convert_Cap()
  Clipboard:= Clip_Save                                                    ; restore clipboard
 }
 
-                                                            
-                                                              
-
 
 /*
 arrow keys--------------------------------------------------
@@ -416,6 +402,10 @@ arrow keys--------------------------------------------------
 
 ;spotify_spotify_volume-------------------------------------------------------------------------------
 spotify_up(){
+  if (spotify_volume == -1){
+    spotify_volume := volume_get("spotify.exe")
+  }
+
   if(spotify_volume < 100){
     spotify_volume += 5
     volume_set(spotify_volume, "spotify.exe")
@@ -426,6 +416,10 @@ spotify_up(){
 
 
 spotify_down(){
+  if (spotify_volume == -1){
+    spotify_volume := volume_get("spotify.exe")
+  }
+
   if((spotify_volume > 4)){
     spotify_volume -= 5
     volume_set(spotify_volume, "spotify.exe")
@@ -457,6 +451,10 @@ F24::
   Return
 ;chrome_volume ---------------------------------------------------------------------
 chrome_up(){
+  if (chrome_volume == -1){
+    chrome_volume := volume_get("chrome.exe")
+  }
+
   if(chrome_volume < 100){
     chrome_volume += 5
     volume_set(chrome_volume, "chrome.exe")
@@ -466,6 +464,10 @@ chrome_up(){
 }
 
 chrome_down(){
+  if (chrome_volume == -1){
+    chrome_volume := volume_get("chrome.exe")
+  }
+
   if(chrome_volume > 4){
     chrome_volume -= 5
     volume_set(chrome_volume, "chrome.exe")
@@ -499,6 +501,18 @@ volume_set(vol, app){
   set := "Lib/svcl.exe /SetVolume " app " " value
   run %set%,,hide
   return
+}
+
+volume_get(app){
+
+  set := ".\Lib\svcl.exe /Stdout /GetPercent " app
+
+  RunWait %comspec% /c %set%  > volume.txt,, hide
+  FileRead, volume, volume.txt
+  FileDelete, volume.txt
+
+  val := Round(volume)
+  return val
 }
 
 master_up(){
@@ -733,3 +747,12 @@ hide:
     Sleep, 300                                          ; delay to prevent unintentional action stop
     SendMessage, 0x112, 0xF140, 0,, Program Manager     ; 0x112 is WM_SYSCOMMAND -- 0xF140 is SC_SCREENSAVE
 Return
+
+GetComputerNameEx(COMPUTER_NAME_FORMAT := 0)                                      ; http://msdn.com/library/ms724301(vs.85,en-us)
+{
+    DllCall("GetComputerNameEx", "UInt", COMPUTER_NAME_FORMAT, "Ptr", 0, "UInt*", size)
+    VarSetCapacity(buf, size * (A_IsUnicode ? 2 : 1), 0)
+    if !(DllCall("GetComputerNameEx", "UInt", COMPUTER_NAME_FORMAT, "Ptr", &buf, "UInt*", size))
+        return "*" A_LastError
+    return StrGet(&buf, size, "UTF-16")
+}
