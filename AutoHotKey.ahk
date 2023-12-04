@@ -15,7 +15,6 @@ global BIAMP_DESKTOP = "BSI-US-3XXLWP3"
 global ComputerName = GetComputerNameEx(1)
 SysGet, NumMonitors, MonitorCount
 if (ComputerName == BIAMP_DESKTOP){
-  ; global YT_X := 555, YT_Y := 1550, YT_W := 516, YT_H := 325
   global YT_X := 555, YT_Y := 1550, YT_W := 516, YT_H := 325
 }
 else if (ComputerName == BIAMP_LAPTOP) && NumMonitors == 2 {
